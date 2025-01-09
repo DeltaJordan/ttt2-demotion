@@ -4,7 +4,7 @@ CreateConVar("ttt2_demotion_serialkiller", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 if SERVER then
     local function DemoteTraitor(ply, base_role)
         if ply:IsTerror() and ply:Alive() and base_role == ROLE_TRAITOR then
-            events.Trigger(EVENT_DEMOTE_TRAITOR, ply)
+            events.Trigger(EVENT_DEMOTE_DEMOTION, ply)
             ply:SetRole(ROLE_INNOCENT)
             timer.Simple(0.1, function()
                 ply:SetCredits(0)
