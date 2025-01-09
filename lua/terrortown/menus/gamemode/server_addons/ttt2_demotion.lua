@@ -22,9 +22,13 @@ local function MakeElement(form, name, typ, data, no_help)
 end
 
 function CLGAMEMODESUBMENU:Populate(parent)
-	local infected_options = vgui.CreateTTT2Form(parent, "demotion_settings_infected")
-	MakeElement(infected_options, "infected", "MakeCheckBox")
+	if ROLE_INFECTED then
+		local infected_options = vgui.CreateTTT2Form(parent, "demotion_settings_infected")
+		MakeElement(infected_options, "infected", "MakeCheckBox")
+	end
 
-	local serialkiller_options = vgui.CreateTTT2Form(parent, "demotion_settings_serialkiller")
-	MakeElement(serialkiller_options, "serialkiller", "MakeCheckBox")
+	if ROLE_SERIALKILLER then
+		local serialkiller_options = vgui.CreateTTT2Form(parent, "demotion_settings_serialkiller")
+		MakeElement(serialkiller_options, "serialkiller", "MakeCheckBox")
+	end
 end
