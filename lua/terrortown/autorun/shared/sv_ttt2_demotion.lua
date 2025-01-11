@@ -2,39 +2,37 @@ CreateConVar("ttt2_demotion_infected", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 CreateConVar("ttt2_demotion_serialkiller", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 
 if SERVER then
-    local function DemoteTraitor(ply, base_role)
-        if ply:IsTerror() and ply:Alive() and base_role == ROLE_TRAITOR then
-            events.Trigger(EVENT_DEMOTE_DEMOTION, ply)
-            ply:SetRole(ROLE_INNOCENT)
-            timer.Simple(0.1, function()
-                ply:SetCredits(0)
-            end)
-            --Call this function whenever a role change occurs during an active round.
-            SendFullStateUpdate()
-        end
-    end
-
-    hook.Add("TTTBeginRound", "DemotionDemoteTraitors", function()
+    hook.Add("TTT2ModifyFinalRoles", "DemotionDemoteTraitors", function(finalRoles)
         local demotion_infected = GetConVar("ttt2_demotion_infected"):GetBool()
         local demotion_serialkiller = GetConVar("ttt2_demotion_infected"):GetBool()
         if not demotion_infected and not demotion_serialkiller then return end
 
-        local should_demote = false
-        for _, ply in pairs(player.GetAll()) do
-            if demotion_infected and ROLE_INFECTED and ply:GetSubRole() == ROLE_INFECTED then
-                should_demote = true
-                break
-            end
-            if demotion_serialkiller and ROLE_SERIALKILLER and ply:GetSubRole() == ROLE_SERIALKILLER then
-                should_demote = true
-                break
-            end
+        local traitor_roles = {}
+        local troles = roles.GetByIndex(ROLE_TRAITOR):GetSubRoles()
+        for _, role in ipairs(troles) do
+            table.insert(traitor_roles, role.index)
         end
 
-        if should_demote then
-            for _, ply in pairs(player.GetAll()) do
-                if ply:GetBaseRole() == ROLE_TRAITOR then
-                    DemoteTraitor(ply, ply:GetBaseRole())
+        local IsTraitor = function(roleIndex)
+            return table.HasValue(traitor_roles, roleIndex)
+        end
+
+        local role_count = {}
+        for _, role in pairs(finalRoles) do
+            role_count[role] = (role_count[role] or 0) + 1
+        end
+
+        local HasAny = function(role)
+            return (role_count[role] or 0) > 0
+        end
+
+        local players = player.GetAll()
+        table.Shuffle(players)
+
+        if (demotion_infected and HasAny(ROLE_INFECTED)) or (demotion_serialkiller and HasAny(ROLE_SERIALKILLER)) then
+            for _, ply in ipairs(players) do
+                if IsTraitor(finalRoles[ply]) then
+                    finalRoles[ply] = ROLE_INNOCENT
                 end
             end
         end
