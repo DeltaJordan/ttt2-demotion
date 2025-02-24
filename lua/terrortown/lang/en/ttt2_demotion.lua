@@ -15,4 +15,4 @@ L["help_ttt2_demotion_serialkiller"] = "Demotes traitors to innocents if a seria
 
 -- Events
 L["title_event_demote_demotion"] = "A role demoted all members of another role!"
-l["desc_event_demote_demotion"] = "{name} has been demoted from {oldRole}."
+L["desc_event_demote_demotion"] = "{name} has been demoted from {oldRole}."
